@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "smoke:admin": "node scripts/smoke-admin-flow.mjs"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",
@@ -15,4 +16,3 @@
     "jsonwebtoken": "^9.0.2"
   }
 }
-
