@@ -31,7 +31,7 @@ Frontend checkout nằm ở repo khác. Repo này cung cấp API cho:
 ```json
 {
   "valid": true,
-  "discount": 10000,
+  "discount_amount": 10000,
   "final_total": 90000,
   "influencer_id": "uuid"
 }
@@ -42,7 +42,7 @@ Frontend checkout nằm ở repo khác. Repo này cung cấp API cho:
 ```json
 {
   "valid": false,
-  "discount": 0,
+  "discount_amount": 0,
   "final_total": 100000,
   "reason_code": "EXPIRED"
 }
@@ -71,7 +71,7 @@ Frontend checkout nằm ở repo khác. Repo này cung cấp API cho:
 ```json
 {
   "order_id": "uuid",
-  "discount": 10000,
+  "discount_amount": 10000,
   "final_total": 90000,
   "influencer_id": "uuid"
 }
@@ -101,7 +101,7 @@ Frontend checkout nằm ở repo khác. Repo này cung cấp API cho:
 
 1. User nhập coupon hoặc vào từ link có coupon
 2. Gọi `POST /coupon/validate`
-3. Hiển thị discount/final_total từ response
+3. Hiển thị discount_amount/final_total từ response
 4. Khi submit checkout, gọi `POST /order/create`
 5. Dùng `order_id` cho bước payment tiếp theo
 
@@ -120,4 +120,3 @@ Frontend checkout nằm ở repo khác. Repo này cung cấp API cho:
 
 - Mọi thay đổi payload phải tăng version hoặc có backward compatibility
 - Không đổi tên field đột ngột khi chưa thông báo team frontend repo ngoài
-

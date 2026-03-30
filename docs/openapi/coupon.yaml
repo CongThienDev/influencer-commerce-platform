@@ -132,12 +132,12 @@ components:
 
     ValidateCouponSuccess:
       type: object
-      required: [valid, discount, final_total, influencer_id]
+      required: [valid, discount_amount, final_total, influencer_id]
       properties:
         valid:
           type: boolean
           enum: [true]
-        discount:
+        discount_amount:
           type: number
           format: double
           minimum: 0
@@ -157,12 +157,12 @@ components:
 
     ValidateCouponFailed:
       type: object
-      required: [valid, discount, final_total, reason_code]
+      required: [valid, discount_amount, final_total, reason_code]
       properties:
         valid:
           type: boolean
           enum: [false]
-        discount:
+        discount_amount:
           type: number
           format: double
           minimum: 0
@@ -195,12 +195,12 @@ components:
 
     CreateOrderResponse:
       type: object
-      required: [order_id, discount, final_total]
+      required: [order_id, discount_amount, final_total]
       properties:
         order_id:
           type: string
           format: uuid
-        discount:
+        discount_amount:
           type: number
           format: double
           minimum: 0
@@ -313,4 +313,3 @@ components:
                 error: TOO_MANY_REQUESTS
                 message: Too many requests
                 statusCode: 429
-

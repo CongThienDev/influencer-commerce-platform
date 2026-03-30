@@ -20,6 +20,8 @@ jobs:
           cache: npm
           cache-dependency-path: Frontend/package-lock.json
       - run: npm ci
+      - run: npm run lint
+      - run: npm run test
       - run: npm run build
 
   backend:
@@ -35,7 +37,8 @@ jobs:
           cache: npm
           cache-dependency-path: Backend/package-lock.json
       - run: npm ci
-      - run: for f in $(find src -name '*.js' | sort); do node --check "$f"; done
+      - run: npm run lint
+      - run: npm run test
 
   deploy-preview:
     runs-on: ubuntu-latest

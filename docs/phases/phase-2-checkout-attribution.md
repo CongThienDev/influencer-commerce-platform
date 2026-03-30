@@ -19,7 +19,7 @@ Chuẩn hóa contract để frontend checkout ở repo khác gọi API repo này
    - input: `{ code, cart_total }`
    - output thành công:
      - `valid`
-     - `discount`
+     - `discount_amount`
      - `final_total`
      - `influencer_id`
    - output thất bại:
@@ -29,7 +29,7 @@ Chuẩn hóa contract để frontend checkout ở repo khác gọi API repo này
    - input: `{ cart_total, coupon_code? }`
    - output:
      - `order_id`
-     - `discount`
+     - `discount_amount`
      - `final_total`
      - `influencer_id?`
 3. Slug resolve flow

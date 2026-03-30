@@ -24,7 +24,8 @@ export function createApp() {
       authController: deps.authController,
       adminController: deps.adminController,
       healthController: deps.healthController,
-      authGuard: deps.authGuard
+      authGuard: deps.authGuard,
+      publicController: deps.publicController
     })
   );
 

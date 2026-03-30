@@ -770,6 +770,96 @@ export class AdminDataModel {
     return this.state.commissions.find((item) => item.id === id) || null;
   }
 
+  findCouponByCode(code) {
+    const normalizedCode = normalizeUpperText(code);
+    return (
+      this.state.coupons.find((item) => normalizeUpperText(item.code) === normalizedCode) || null
+    );
+  }
+
+  findCouponBySlug(slug) {
+    const normalizedSlug = normalizeLowerText(slug);
+    return (
+      this.state.coupons.find((item) => normalizeLowerText(item.slug) === normalizedSlug) || null
+    );
+  }
+
+  getInfluencerStats(id) {
+    const influencer = this.findInfluencerOrThrow(id);
+    const orders = this.state.orders.filter((order) => order.influencer_id === influencer.id);
+    const commissions = this.state.commissions.filter(
+      (commission) => commission.influencer_id === influencer.id
+    );
+
+    return {
+      total_orders: orders.length,
+      total_revenue: orders.reduce((sum, order) => sum + toMoney(order.final_amount), 0),
+      total_commission: commissions.reduce(
+        (sum, commission) => sum + toMoney(commission.commission_amount),
+        0
+      )
+    };
+  }
+
+  createPublicOrder({
+    total_amount,
+    discount_amount,
+    final_amount,
+    coupon = null,
+    commission_rate = 0.1
+  } = {}) {
+    let couponRecord = null;
+    if (coupon) {
+      couponRecord = this.findCouponOrThrow(coupon.id);
+      if (
+        couponRecord.usage_limit !== null &&
+        couponRecord.usage_limit !== undefined &&
+        couponRecord.used_count >= couponRecord.usage_limit
+      ) {
+        throw createAppError(409, 'CONFLICT', 'Coupon usage limit reached');
+      }
+
+      couponRecord.used_count += 1;
+      couponRecord.updated_at = nowIso();
+    }
+
+    const now = nowIso();
+    const order = {
+      id: createUuidFromCounter(++this.sequences.order),
+      total_amount: toMoney(total_amount),
+      discount_amount: toMoney(discount_amount),
+      final_amount: toMoney(final_amount),
+      coupon_code: couponRecord ? couponRecord.code : null,
+      influencer_id: couponRecord ? couponRecord.influencer_id : null,
+      created_at: now
+    };
+
+    this.state.orders.unshift(order);
+
+    let commission = null;
+    if (order.influencer_id) {
+      commission = {
+        id: createUuidFromCounter(++this.sequences.commission),
+        order_id: order.id,
+        influencer_id: order.influencer_id,
+        commission_rate,
+        commission_amount: toMoney(order.final_amount * commission_rate),
+        status: 'pending',
+        paid_at: null,
+        note: null,
+        created_at: now,
+        updated_at: now
+      };
+
+      this.state.commissions.unshift(commission);
+    }
+
+    return {
+      order: deepClone(order),
+      commission: commission ? deepClone(commission) : null
+    };
+  }
+
   findInfluencerOrThrow(id) {
     const record = this.findInfluencerById(id);
     if (!record) {
