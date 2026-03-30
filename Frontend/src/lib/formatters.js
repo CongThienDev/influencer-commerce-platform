@@ -1,12 +1,13 @@
-const moneyFormatter = new Intl.NumberFormat('vi-VN', {
+const moneyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
-  currency: 'VND',
-  maximumFractionDigits: 0,
+  currency: 'USD',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 })
 
-const numberFormatter = new Intl.NumberFormat('vi-VN')
+const numberFormatter = new Intl.NumberFormat('en-US')
 
-const dateTimeFormatter = new Intl.DateTimeFormat('vi-VN', {
+const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
   dateStyle: 'medium',
   timeStyle: 'short',
 })

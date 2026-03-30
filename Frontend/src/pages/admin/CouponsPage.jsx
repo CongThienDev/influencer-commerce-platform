@@ -135,29 +135,29 @@ export default function CouponsPage() {
     try {
       if (editingRecord) {
         await updateCoupon(editingRecord.id, payload)
-        message.success('Coupon updated')
+        message.success('Coupon updated successfully.')
       } else {
         await createCoupon({
           code: values.code,
           ...payload,
         })
-        message.success('Coupon created')
+        message.success('Coupon created successfully.')
       }
 
       setModalOpen(false)
       refresh()
     } catch (saveError) {
-      message.error(saveError.message || 'Unable to save coupon')
+      message.error(saveError.message || 'Failed to save coupon.')
     }
   }
 
   const disableCoupon = async (record) => {
     try {
       await updateCoupon(record.id, { status: 'inactive' })
-      message.success('Coupon disabled')
+      message.success('Coupon disabled successfully.')
       refresh()
     } catch (actionError) {
-      message.error(actionError.message || 'Unable to disable coupon')
+      message.error(actionError.message || 'Failed to disable coupon.')
     }
   }
 
@@ -221,9 +221,10 @@ export default function CouponsPage() {
             </Button>
             {record.status === 'active' ? (
               <Popconfirm
-                title="Disable this coupon?"
-                description="This coupon will stop validating for checkout flows."
-                okText="Disable"
+                title="Are you sure you want to disable this coupon?"
+                description="This coupon will no longer validate during checkout."
+                okText="Yes, disable"
+                cancelText="Cancel"
                 okButtonProps={{ danger: true }}
                 onConfirm={() => disableCoupon(record)}
               >
@@ -243,7 +244,7 @@ export default function CouponsPage() {
     <div className="page-stack">
       <SectionHeader
         title="Coupons"
-        description="Tạo và quản lý coupon code, influence mapping, giới hạn sử dụng và trạng thái kích hoạt."
+        description="Create and manage coupon codes, influencer mapping, usage limits, and status."
         actions={[
           <Button key="refresh" icon={<ReloadOutlined />} onClick={refresh}>
             Refresh
@@ -258,7 +259,7 @@ export default function CouponsPage() {
         <Alert
           type="error"
           showIcon
-          message="Không tải được danh sách coupon"
+          message="Unable to load coupons"
           description={error.message}
         />
       ) : null}
@@ -290,6 +291,9 @@ export default function CouponsPage() {
           columns={columns}
           dataSource={data}
           loading={loading}
+          locale={{
+            emptyText: loading ? 'Loading coupons...' : 'No coupons found.',
+          }}
           pagination={{
             current: meta.page,
             pageSize: meta.limit,

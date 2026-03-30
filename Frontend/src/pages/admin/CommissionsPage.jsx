@@ -73,10 +73,10 @@ export default function CommissionsPage() {
   const markPaid = async (record) => {
     try {
       await markCommissionPaid(record.id, { note: 'Marked paid from admin dashboard' })
-      message.success('Commission marked as paid')
+      message.success('Commission marked as paid successfully.')
       refresh()
     } catch (actionError) {
-      message.error(actionError.message || 'Unable to mark commission as paid')
+      message.error(actionError.message || 'Failed to mark commission as paid.')
     }
   }
 
@@ -87,9 +87,9 @@ export default function CommissionsPage() {
         influencer_id: query.influencer_id,
       })
       downloadBlob(csvBlob, `commissions-${query.status || 'all'}.csv`)
-      message.success('CSV export started')
+      message.success('CSV export started successfully.')
     } catch (exportError) {
-      message.error(exportError.message || 'Unable to export commissions')
+      message.error(exportError.message || 'Failed to export commissions.')
     }
   }
 
@@ -144,9 +144,10 @@ export default function CommissionsPage() {
         render: (_, record) =>
           record.status === 'pending' ? (
             <Popconfirm
-              title="Mark this commission as paid?"
-              description="This will update the payout status for finance reconciliation."
-              okText="Mark paid"
+              title="Are you sure you want to mark this commission as paid?"
+              description="This updates payout status for reconciliation."
+              okText="Yes, mark paid"
+              cancelText="Cancel"
               okButtonProps={{ danger: false }}
               onConfirm={() => markPaid(record)}
             >
@@ -164,7 +165,7 @@ export default function CommissionsPage() {
     <div className="page-stack">
       <SectionHeader
         title="Commissions"
-        description="Xem trạng thái commission, mark as paid và xuất CSV cho finance reconciliation."
+        description="Track commission status, mark payouts, and export CSV for reconciliation."
         actions={[
           <Button
             key="export"
@@ -184,7 +185,7 @@ export default function CommissionsPage() {
         <Alert
           type="error"
           showIcon
-          message="Không tải được danh sách commission"
+          message="Unable to load commissions"
           description={error.message}
         />
       ) : null}
@@ -225,6 +226,9 @@ export default function CommissionsPage() {
           columns={columns}
           dataSource={data}
           loading={loading}
+          locale={{
+            emptyText: loading ? 'Loading commissions...' : 'No commissions found.',
+          }}
           pagination={{
             current: meta.page,
             pageSize: meta.limit,

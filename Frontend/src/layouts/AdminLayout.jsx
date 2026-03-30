@@ -102,8 +102,8 @@ export default function AdminLayout() {
       title: activeItem?.label || 'Dashboard',
       description:
         activeKey === 'dashboard'
-          ? 'Overview điều hành hệ thống coupon, influencer và commission'
-          : `Quản lý mục ${activeItem?.label || ''}`,
+          ? 'Operational overview for coupons, influencers, orders, and commissions'
+          : `Manage ${activeItem?.label || 'module'}`,
     }
   }, [activeKey])
 
@@ -130,10 +130,10 @@ export default function AdminLayout() {
   const onLogout = async () => {
     try {
       await logout()
-      message.success('Logged out')
+      message.success('Logged out successfully.')
       navigate('/login', { replace: true })
     } catch (error) {
-      message.error(error.message || 'Logout failed')
+      message.error(error.message || 'Failed to log out.')
       navigate('/login', { replace: true })
     }
   }

@@ -1,14 +1,27 @@
 import { Spin } from 'antd'
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { getMe } from './api'
-import AdminLayout from './layouts/AdminLayout'
-import LoginPage from './pages/LoginPage'
-import DashboardPage from './pages/admin/DashboardPage'
-import InfluencersPage from './pages/admin/InfluencersPage'
-import CouponsPage from './pages/admin/CouponsPage'
-import OrdersPage from './pages/admin/OrdersPage'
-import CommissionsPage from './pages/admin/CommissionsPage'
+
+const AdminLayout = lazy(() => import('./layouts/AdminLayout'))
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const DashboardPage = lazy(() => import('./pages/admin/DashboardPage'))
+const InfluencersPage = lazy(() => import('./pages/admin/InfluencersPage'))
+const CouponsPage = lazy(() => import('./pages/admin/CouponsPage'))
+const OrdersPage = lazy(() => import('./pages/admin/OrdersPage'))
+const CommissionsPage = lazy(() => import('./pages/admin/CommissionsPage'))
+
+function RouteLoading() {
+  return (
+    <div className="center-screen">
+      <Spin size="large" />
+    </div>
+  )
+}
+
+function withSuspense(node) {
+  return <Suspense fallback={<RouteLoading />}>{node}</Suspense>
+}
 
 function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true)
@@ -51,21 +64,21 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={withSuspense(<LoginPage />)} />
         <Route
           path="/admin"
           element={
             <ProtectedRoute>
-              <AdminLayout />
+              {withSuspense(<AdminLayout />)}
             </ProtectedRoute>
           }
         >
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="influencers" element={<InfluencersPage />} />
-          <Route path="coupons" element={<CouponsPage />} />
-          <Route path="orders" element={<OrdersPage />} />
-          <Route path="commissions" element={<CommissionsPage />} />
+          <Route path="dashboard" element={withSuspense(<DashboardPage />)} />
+          <Route path="influencers" element={withSuspense(<InfluencersPage />)} />
+          <Route path="coupons" element={withSuspense(<CouponsPage />)} />
+          <Route path="orders" element={withSuspense(<OrdersPage />)} />
+          <Route path="commissions" element={withSuspense(<CommissionsPage />)} />
         </Route>
         <Route
           path="/"

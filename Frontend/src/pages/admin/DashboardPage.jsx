@@ -71,7 +71,7 @@ export default function DashboardPage() {
     <div className="page-stack">
       <SectionHeader
         title="Dashboard"
-        description="Theo dõi nhanh doanh thu, số đơn và top influencer tạo doanh thu cao nhất."
+        description="Track revenue, total orders, and top-performing influencers."
         actions={[
           <button
             key="refresh"
@@ -89,7 +89,7 @@ export default function DashboardPage() {
         <Alert
           type="error"
           showIcon
-          message="Không tải được dashboard summary"
+          message="Unable to load dashboard summary"
           description={error.message}
           action={
             <button type="button" className="ghost-action" onClick={loadSummary}>
@@ -146,7 +146,7 @@ export default function DashboardPage() {
                 size="middle"
               />
             ) : (
-              <Empty description="Chưa có dữ liệu top influencers" />
+              <Empty description="No top influencer data yet" />
             )}
           </Card>
         </Col>
