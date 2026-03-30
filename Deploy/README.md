@@ -10,7 +10,7 @@ Khu vực tách riêng toàn bộ hạ tầng và vận hành.
 
 ```bash
 cp .env.example .env
-docker compose up --build
+docker compose -f docker-compose.yml up --build
 ```
 
 ## Production baseline
