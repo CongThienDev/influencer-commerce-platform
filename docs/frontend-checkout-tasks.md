@@ -23,7 +23,7 @@ Hoàn tất flow checkout dùng coupon ở frontend public/shop:
 - [ ] Normalize UI input (case-insensitive behavior)
 - [ ] On apply, call backend: `POST /v1/coupon/validate`
 - [ ] Show:
-  - [ ] `discount`
+  - [ ] `discount_amount`
   - [ ] updated total (`final_total`)
 - [ ] Show validation error based on `reason_code`
 
@@ -52,7 +52,7 @@ Hoàn tất flow checkout dùng coupon ở frontend public/shop:
   - [ ] `coupon_code` (optional)
 - [ ] Call backend: `POST /v1/order/create`
 - [ ] Render backend source-of-truth values:
-  - [ ] `discount`
+  - [ ] `discount_amount`
   - [ ] `final_total`
 - [ ] Prevent local recompute drift from backend totals
 

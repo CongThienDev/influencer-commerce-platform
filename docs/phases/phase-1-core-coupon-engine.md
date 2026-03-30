@@ -51,10 +51,10 @@ Hoàn thiện business core cho coupon attribution và commission ở backend, c
 
 1. `POST /coupon/validate`
    - input: `{ code, cart_total }`
-   - output: `{ valid, discount, final_total, influencer_id, reason? }`
+   - output: `{ valid, discount_amount, final_total, influencer_id, reason? }`
 2. `POST /order/create`
    - input: `{ cart_total, coupon_code? }`
-   - output: `{ order_id, discount, final_total }`
+   - output: `{ order_id, discount_amount, final_total }`
 3. `GET /influencer/:id/stats`
    - output: `{ total_orders, total_revenue, total_commission }`
 
@@ -90,4 +90,3 @@ Hoàn thiện business core cho coupon attribution và commission ở backend, c
 
 - Chỉ tăng `used_count` sau payment success hoặc có trạng thái order rõ ràng
 - Dùng DB transaction + row lock với coupon khi confirm order
-

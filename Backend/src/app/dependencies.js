@@ -7,17 +7,23 @@ import { AuthCookieService } from './services/auth-cookie.service.js';
 import { AuthController } from './controllers/auth.controller.js';
 import { AdminController } from './controllers/admin.controller.js';
 import { HealthController } from './controllers/health.controller.js';
+import { PublicService } from './services/public.service.js';
+import { PublicController } from './controllers/public.controller.js';
+import { AdminDataModel } from './models/admin-data.model.js';
 
 export function buildDependencies() {
   const authSessionModel = new AuthSessionModel();
   const authCookieService = new AuthCookieService({ env });
   const authService = new AuthService({ env, authSessionModel });
-  const adminService = new AdminService();
+  const dataModel = new AdminDataModel();
+  const adminService = new AdminService({ dataModel });
+  const publicService = new PublicService({ dataModel, env });
 
   return {
     env,
     authController: new AuthController({ authService, authCookieService }),
     adminController: new AdminController({ adminService }),
+    publicController: new PublicController({ publicService }),
     healthController: new HealthController(),
     authGuard: createAuthGuard({ env }),
     requireCsrf: createRequireCsrf()

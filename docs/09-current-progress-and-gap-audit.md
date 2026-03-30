@@ -158,7 +158,7 @@ Note:
 MVP is considered complete only when all items below are true:
 
 - [ ] Coupon validation API works per contract
-- [ ] Order creation API returns backend-calculated `discount` and `final_total`
+- [ ] Order creation API returns backend-calculated `discount_amount` and `final_total`
 - [ ] Influencer attribution is stored on order when coupon valid
 - [ ] Commission record is auto-created from successful payment flow
 - [ ] Slug resolve API works for influencer links
