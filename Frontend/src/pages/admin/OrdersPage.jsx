@@ -114,7 +114,7 @@ export default function OrdersPage() {
     <div className="page-stack">
       <SectionHeader
         title="Orders"
-        description="Danh sách order đã được ghi nhận attribution từ coupon."
+        description="Order list with coupon attribution details."
         actions={[
           <button key="refresh" type="button" className="ghost-action" onClick={refresh}>
             <ReloadOutlined />
@@ -127,7 +127,7 @@ export default function OrdersPage() {
         <Alert
           type="error"
           showIcon
-          message="Không tải được danh sách order"
+          message="Unable to load orders"
           description={error.message}
         />
       ) : null}
@@ -169,6 +169,9 @@ export default function OrdersPage() {
           columns={columns}
           dataSource={data}
           loading={loading}
+          locale={{
+            emptyText: loading ? 'Loading orders...' : 'No orders found.',
+          }}
           pagination={{
             current: meta.page,
             pageSize: meta.limit,

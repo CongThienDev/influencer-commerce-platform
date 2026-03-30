@@ -81,26 +81,26 @@ export default function InfluencersPage() {
     try {
       if (editingRecord) {
         await updateInfluencer(editingRecord.id, payload)
-        message.success('Influencer updated')
+        message.success('Influencer updated successfully.')
       } else {
         await createInfluencer(payload)
-        message.success('Influencer created')
+        message.success('Influencer created successfully.')
       }
 
       setModalOpen(false)
       refresh()
     } catch (saveError) {
-      message.error(saveError.message || 'Unable to save influencer')
+      message.error(saveError.message || 'Failed to save influencer.')
     }
   }
 
   const deactivateInfluencer = async (record) => {
     try {
       await updateInfluencer(record.id, { status: 'inactive' })
-      message.success('Influencer deactivated')
+      message.success('Influencer deactivated successfully.')
       refresh()
     } catch (actionError) {
-      message.error(actionError.message || 'Unable to deactivate influencer')
+      message.error(actionError.message || 'Failed to deactivate influencer.')
     }
   }
 
@@ -156,9 +156,10 @@ export default function InfluencersPage() {
             </Button>
             {record.status === 'active' ? (
               <Popconfirm
-                title="Deactivate this influencer?"
-                description="This will prevent the influencer from receiving new attributions."
-                okText="Deactivate"
+                title="Are you sure you want to deactivate this influencer?"
+                description="They will no longer receive new attributions."
+                okText="Yes, deactivate"
+                cancelText="Cancel"
                 okButtonProps={{ danger: true }}
                 onConfirm={() => deactivateInfluencer(record)}
               >
@@ -178,7 +179,7 @@ export default function InfluencersPage() {
     <div className="page-stack">
       <SectionHeader
         title="Influencers"
-        description="Quản lý influencer, trạng thái hoạt động và tổng doanh thu/ số code đã gắn."
+        description="Manage influencer profiles, status, and attributed revenue."
         actions={[
           <Button key="refresh" icon={<ReloadOutlined />} onClick={refresh}>
             Refresh
@@ -193,7 +194,7 @@ export default function InfluencersPage() {
         <Alert
           type="error"
           showIcon
-          message="Không tải được danh sách influencer"
+          message="Unable to load influencers"
           description={error.message}
         />
       ) : null}
@@ -225,6 +226,9 @@ export default function InfluencersPage() {
           columns={columns}
           dataSource={data}
           loading={loading}
+          locale={{
+            emptyText: loading ? 'Loading influencers...' : 'No influencers found.',
+          }}
           pagination={{
             current: meta.page,
             pageSize: meta.limit,

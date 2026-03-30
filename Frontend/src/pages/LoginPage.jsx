@@ -31,7 +31,7 @@ export default function LoginPage() {
           Admin Login
         </Typography.Title>
         <Typography.Paragraph type="secondary" className="auth-card__description">
-          Truy cập dashboard quản trị coupon, influencer, order và commission.
+          Access the admin console to manage coupons, influencers, orders, and commissions.
         </Typography.Paragraph>
         {error ? (
           <Alert
@@ -46,8 +46,8 @@ export default function LoginPage() {
             label="Email"
             name="email"
             rules={[
-              { required: true, message: 'Vui lòng nhập email' },
-              { type: 'email', message: 'Email không hợp lệ' },
+              { required: true, message: 'Please enter your email' },
+              { type: 'email', message: 'Please enter a valid email' },
             ]}
           >
             <Input
@@ -59,7 +59,7 @@ export default function LoginPage() {
           <Form.Item
             label="Password"
             name="password"
-            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+            rules={[{ required: true, message: 'Please enter your password' }]}
           >
             <Input.Password
               prefix={<LockOutlined />}

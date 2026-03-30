@@ -35,7 +35,7 @@ export default function DashboardPage() {
             Admin Dashboard
           </Typography.Title>
           <Typography.Text type="secondary">
-            Overview hệ thống coupon/influencer
+            Coupon and influencer system overview
           </Typography.Text>
         </div>
         <Button onClick={handleLogout}>Logout</Button>
@@ -61,4 +61,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
