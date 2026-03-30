@@ -1,63 +1,36 @@
 # influencer-platform-system
 
-Repo này được chuẩn hóa theo 3 khối chính:
+Monorepo gồm:
 
-- `Frontend/`: ứng dụng admin web
-- `Backend/`: API Express
-- `Deploy/`: Docker Compose, Kubernetes, CI/CD
+- `Backend/`: Express API
+- `Frontend/`: React + Vite admin app
+- `Deploy/`: Kubernetes baseline
 
-## Cấu trúc
-
-```text
-Frontend/
-Backend/
-Deploy/
-docs/
-.github/workflows/
-```
-
-## Chạy local
-
-### Backend
+## Quick start
 
 ```bash
-cd Backend
 cp .env.example .env
-npm install
-npm run dev
+docker compose -f docker-compose.yml up --build
 ```
 
-API mặc định chạy ở `http://localhost:4000`.
+- Backend: `http://localhost:4000`
+- Frontend: `http://localhost:5173`
 
-### Frontend
+## Dev mode (hot reload in containers)
 
 ```bash
-cd Frontend
-npm install
-npm run dev
+cp .env.example .env
+docker compose up --build
 ```
 
-UI mặc định chạy ở `http://localhost:5173`.
-
-### Chạy cả hệ thống bằng container
+## Local run without Docker
 
 ```bash
-docker compose -f Deploy/app/docker-compose.yml up --build
+cd Backend && cp .env.example .env && npm install && npm run dev
+cd Frontend && npm install && npm run dev
 ```
 
-## CI/CD
-
-- Workflow: `.github/workflows/ci-cd.yml`
-- Deploy baseline: `Deploy/infra/k8s/`
-
-## API chính
-
-- `POST /v1/auth/login`
-- `GET /v1/auth/me`
-- `POST /v1/auth/logout`
-- `GET /v1/admin/dashboard/summary`
-
-## Contracts
+## API contracts
 
 - `docs/openapi/auth.yaml`
 - `docs/openapi/coupon.yaml`

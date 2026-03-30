@@ -4,13 +4,13 @@ Khu vực tách riêng toàn bộ hạ tầng và vận hành.
 
 ## Cấu trúc
 
-- `Deploy/app/`: compose và cấu hình chạy local bằng container
 - `Deploy/infra/`: manifest production cho Kubernetes/Ingress
 
 ## Local container run
 
 ```bash
-docker compose -f Deploy/app/docker-compose.yml up --build
+cp .env.example .env
+docker compose up --build
 ```
 
 ## Production baseline
