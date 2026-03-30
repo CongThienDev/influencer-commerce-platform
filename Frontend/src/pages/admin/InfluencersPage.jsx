@@ -13,7 +13,7 @@ import {
   message,
 } from 'antd'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   createInfluencer,
   listInfluencers,
@@ -31,7 +31,7 @@ export default function InfluencersPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingRecord, setEditingRecord] = useState(null)
 
-  const { data, meta, loading, error, query, setQuery, setPage, refresh } =
+  const { data, meta, loading, error, query, setQuery, refresh } =
     usePaginatedResource(listInfluencers, { page: 1, limit: PAGE_SIZE })
 
   const loadInfluencerTable = (values = {}) => {
@@ -104,76 +104,73 @@ export default function InfluencersPage() {
     }
   }
 
-  const columns = useMemo(
-    () => [
-      {
-        title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
-        render: (value, record) => (
-          <Space direction="vertical" size={0}>
-            <Typography.Text strong>{value}</Typography.Text>
-            <Typography.Text type="secondary">{record.handle || 'No handle'}</Typography.Text>
-          </Space>
-        ),
-      },
-      {
-        title: 'Email',
-        dataIndex: 'email',
-        key: 'email',
-      },
-      {
-        title: 'Codes',
-        dataIndex: 'total_codes',
-        key: 'total_codes',
-        render: (value) => formatNumber(value),
-      },
-      {
-        title: 'Revenue',
-        dataIndex: 'total_revenue',
-        key: 'total_revenue',
-        render: (value) => formatMoney(value),
-      },
-      {
-        title: 'Status',
-        dataIndex: 'status',
-        key: 'status',
-        render: (value) => <StatusTag status={value} />,
-      },
-      {
-        title: 'Created',
-        dataIndex: 'created_at',
-        key: 'created_at',
-        render: (value) => formatDateTime(value),
-      },
-      {
-        title: 'Actions',
-        key: 'actions',
-        render: (_, record) => (
-          <Space>
-            <Button type="link" onClick={() => openEditModal(record)}>
-              Edit
-            </Button>
-            {record.status === 'active' ? (
-              <Popconfirm
-                title="Are you sure you want to deactivate this influencer?"
-                description="They will no longer receive new attributions."
-                okText="Yes, deactivate"
-                cancelText="Cancel"
-                okButtonProps={{ danger: true }}
-                onConfirm={() => deactivateInfluencer(record)}
-              >
-                <Button type="link" danger>
-                  Deactivate
-                </Button>
-              </Popconfirm>
-            ) : null}
-          </Space>
-        ),
-      },
-    ],
-    []
-  )
+  const columns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (value, record) => (
+        <Space direction="vertical" size={0}>
+          <Typography.Text strong>{value}</Typography.Text>
+          <Typography.Text type="secondary">{record.handle || 'No handle'}</Typography.Text>
+        </Space>
+      ),
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: 'Codes',
+      dataIndex: 'total_codes',
+      key: 'total_codes',
+      render: (value) => formatNumber(value),
+    },
+    {
+      title: 'Revenue',
+      dataIndex: 'total_revenue',
+      key: 'total_revenue',
+      render: (value) => formatMoney(value),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (value) => <StatusTag status={value} />,
+    },
+    {
+      title: 'Created',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      render: (value) => formatDateTime(value),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record) => (
+        <Space>
+          <Button type="link" onClick={() => openEditModal(record)}>
+            Edit
+          </Button>
+          {record.status === 'active' ? (
+            <Popconfirm
+              title="Are you sure you want to deactivate this influencer?"
+              description="They will no longer receive new attributions."
+              okText="Yes, deactivate"
+              cancelText="Cancel"
+              okButtonProps={{ danger: true }}
+              onConfirm={() => deactivateInfluencer(record)}
+            >
+              <Button type="link" danger>
+                Deactivate
+              </Button>
+            </Popconfirm>
+          ) : null}
+        </Space>
+      ),
+    },
+  ]
 
   return (
     <div className="page-stack">

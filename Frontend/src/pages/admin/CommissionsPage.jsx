@@ -2,7 +2,6 @@ import {
   Alert,
   Button,
   Card,
-  Input,
   Popconfirm,
   Select,
   Space,
@@ -11,7 +10,7 @@ import {
   message,
 } from 'antd'
 import { DownloadOutlined, ReloadOutlined } from '@ant-design/icons'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   downloadBlob,
   exportCommissionsCsv,
@@ -44,7 +43,7 @@ export default function CommissionsPage() {
         if (active) {
           setInfluencers(response?.data || [])
         }
-      } catch (listError) {
+      } catch {
         if (active) {
           setInfluencers([])
         }
@@ -93,73 +92,70 @@ export default function CommissionsPage() {
     }
   }
 
-  const columns = useMemo(
-    () => [
-      {
-        title: 'Influencer',
-        dataIndex: 'influencer_name',
-        key: 'influencer_name',
-        render: (value, record) => value || record.influencer_id,
-      },
-      {
-        title: 'Orders',
-        dataIndex: 'order_id',
-        key: 'order_id',
-        render: (value) => value || '—',
-      },
-      {
-        title: 'Revenue',
-        key: 'revenue',
-        render: (_, record) =>
-          formatMoney(record.revenue ?? record.order_total ?? record.total_amount),
-      },
-      {
-        title: 'Commission',
-        dataIndex: 'commission_amount',
-        key: 'commission_amount',
-        render: (value, record) => (
-          <Space direction="vertical" size={0}>
-            <Typography.Text>{formatMoney(value)}</Typography.Text>
-            <Typography.Text type="secondary">
-              {formatPercent(record.commission_rate)}
-            </Typography.Text>
-          </Space>
+  const columns = [
+    {
+      title: 'Influencer',
+      dataIndex: 'influencer_name',
+      key: 'influencer_name',
+      render: (value, record) => value || record.influencer_id,
+    },
+    {
+      title: 'Orders',
+      dataIndex: 'order_id',
+      key: 'order_id',
+      render: (value) => value || '—',
+    },
+    {
+      title: 'Revenue',
+      key: 'revenue',
+      render: (_, record) =>
+        formatMoney(record.revenue ?? record.order_total ?? record.total_amount),
+    },
+    {
+      title: 'Commission',
+      dataIndex: 'commission_amount',
+      key: 'commission_amount',
+      render: (value, record) => (
+        <Space direction="vertical" size={0}>
+          <Typography.Text>{formatMoney(value)}</Typography.Text>
+          <Typography.Text type="secondary">
+            {formatPercent(record.commission_rate)}
+          </Typography.Text>
+        </Space>
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (value) => <StatusTag status={value} />,
+    },
+    {
+      title: 'Paid at',
+      dataIndex: 'paid_at',
+      key: 'paid_at',
+      render: (value) => formatDateTime(value),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record) =>
+        record.status === 'pending' ? (
+          <Popconfirm
+            title="Are you sure you want to mark this commission as paid?"
+            description="This updates payout status for reconciliation."
+            okText="Yes, mark paid"
+            cancelText="Cancel"
+            okButtonProps={{ danger: false }}
+            onConfirm={() => markPaid(record)}
+          >
+            <Button type="link">Mark paid</Button>
+          </Popconfirm>
+        ) : (
+          <Typography.Text type="secondary">No actions</Typography.Text>
         ),
-      },
-      {
-        title: 'Status',
-        dataIndex: 'status',
-        key: 'status',
-        render: (value) => <StatusTag status={value} />,
-      },
-      {
-        title: 'Paid at',
-        dataIndex: 'paid_at',
-        key: 'paid_at',
-        render: (value) => formatDateTime(value),
-      },
-      {
-        title: 'Actions',
-        key: 'actions',
-        render: (_, record) =>
-          record.status === 'pending' ? (
-            <Popconfirm
-              title="Are you sure you want to mark this commission as paid?"
-              description="This updates payout status for reconciliation."
-              okText="Yes, mark paid"
-              cancelText="Cancel"
-              okButtonProps={{ danger: false }}
-              onConfirm={() => markPaid(record)}
-            >
-              <Button type="link">Mark paid</Button>
-            </Popconfirm>
-          ) : (
-            <Typography.Text type="secondary">No actions</Typography.Text>
-          ),
-      },
-    ],
-    []
-  )
+    },
+  ]
 
   return (
     <div className="page-stack">

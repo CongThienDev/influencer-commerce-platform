@@ -16,7 +16,7 @@ import {
 } from 'antd'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   createCoupon,
   listCoupons,
@@ -59,7 +59,7 @@ export default function CouponsPage() {
         if (active) {
           setInfluencers(response?.data || [])
         }
-      } catch (listError) {
+      } catch {
         if (active) {
           setInfluencers([])
         }
@@ -161,84 +161,81 @@ export default function CouponsPage() {
     }
   }
 
-  const columns = useMemo(
-    () => [
-      {
-        title: 'Code',
-        dataIndex: 'code',
-        key: 'code',
-        render: (value, record) => (
-          <Space direction="vertical" size={0}>
-            <Typography.Text strong>{value}</Typography.Text>
-            <Typography.Text type="secondary">{record.slug || 'No slug'}</Typography.Text>
-          </Space>
-        ),
-      },
-      {
-        title: 'Influencer',
-        dataIndex: 'influencer_name',
-        key: 'influencer_name',
-        render: (value, record) => value || record.influencer_id,
-      },
-      {
-        title: 'Discount',
-        key: 'discount',
-        render: (_, record) =>
-          record.discount_type === 'percent'
-            ? `${formatNumber(record.discount_value)}%`
-            : formatMoney(record.discount_value),
-      },
-      {
-        title: 'Used',
-        dataIndex: 'used_count',
-        key: 'used_count',
-        render: (value) => formatNumber(value),
-      },
-      {
-        title: 'Revenue',
-        key: 'revenue',
-        render: (_, record) => formatMoney(record.total_revenue ?? record.revenue),
-      },
-      {
-        title: 'Status',
-        dataIndex: 'status',
-        key: 'status',
-        render: (value) => <StatusTag status={value} />,
-      },
-      {
-        title: 'Valid to',
-        dataIndex: 'valid_to',
-        key: 'valid_to',
-        render: (value) => formatDateTime(value),
-      },
-      {
-        title: 'Actions',
-        key: 'actions',
-        render: (_, record) => (
-          <Space>
-            <Button type="link" onClick={() => openEditModal(record)}>
-              Edit
-            </Button>
-            {record.status === 'active' ? (
-              <Popconfirm
-                title="Are you sure you want to disable this coupon?"
-                description="This coupon will no longer validate during checkout."
-                okText="Yes, disable"
-                cancelText="Cancel"
-                okButtonProps={{ danger: true }}
-                onConfirm={() => disableCoupon(record)}
-              >
-                <Button type="link" danger>
-                  Disable
-                </Button>
-              </Popconfirm>
-            ) : null}
-          </Space>
-        ),
-      },
-    ],
-    []
-  )
+  const columns = [
+    {
+      title: 'Code',
+      dataIndex: 'code',
+      key: 'code',
+      render: (value, record) => (
+        <Space direction="vertical" size={0}>
+          <Typography.Text strong>{value}</Typography.Text>
+          <Typography.Text type="secondary">{record.slug || 'No slug'}</Typography.Text>
+        </Space>
+      ),
+    },
+    {
+      title: 'Influencer',
+      dataIndex: 'influencer_name',
+      key: 'influencer_name',
+      render: (value, record) => value || record.influencer_id,
+    },
+    {
+      title: 'Discount',
+      key: 'discount',
+      render: (_, record) =>
+        record.discount_type === 'percent'
+          ? `${formatNumber(record.discount_value)}%`
+          : formatMoney(record.discount_value),
+    },
+    {
+      title: 'Used',
+      dataIndex: 'used_count',
+      key: 'used_count',
+      render: (value) => formatNumber(value),
+    },
+    {
+      title: 'Revenue',
+      key: 'revenue',
+      render: (_, record) => formatMoney(record.total_revenue ?? record.revenue),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (value) => <StatusTag status={value} />,
+    },
+    {
+      title: 'Valid to',
+      dataIndex: 'valid_to',
+      key: 'valid_to',
+      render: (value) => formatDateTime(value),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record) => (
+        <Space>
+          <Button type="link" onClick={() => openEditModal(record)}>
+            Edit
+          </Button>
+          {record.status === 'active' ? (
+            <Popconfirm
+              title="Are you sure you want to disable this coupon?"
+              description="This coupon will no longer validate during checkout."
+              okText="Yes, disable"
+              cancelText="Cancel"
+              okButtonProps={{ danger: true }}
+              onConfirm={() => disableCoupon(record)}
+            >
+              <Button type="link" danger>
+                Disable
+              </Button>
+            </Popconfirm>
+          ) : null}
+        </Space>
+      ),
+    },
+  ]
 
   return (
     <div className="page-stack">

@@ -35,7 +35,7 @@ export default function OrdersPage() {
         if (active) {
           setInfluencers(response?.data || [])
         }
-      } catch (listError) {
+      } catch {
         if (active) {
           setInfluencers([])
         }
