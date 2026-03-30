@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
+    "test": "node --test tests",
+    "test:coverage": "node --test --experimental-test-coverage tests",
     "smoke:admin": "node scripts/smoke-admin-flow.mjs"
   },
   "dependencies": {

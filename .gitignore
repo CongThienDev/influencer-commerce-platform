@@ -3,3 +3,14 @@ dist
 .env
 .DS_Store
 
+# Test coverage artifacts (never commit generated HTML reports)
+coverage/
+**/coverage/
+**/coverage/**
+*.lcov
+coverage-final.json
+!Backend/coverage/
+!Backend/coverage/.gitkeep
+!Frontend/coverage/
+!Frontend/coverage/.gitkeep
+**/coverage/*.html
