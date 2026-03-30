@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      context: ../../Backend
+    env_file:
+      - ../../Backend/.env
+    environment:
+      PORT: 4000
+      FRONTEND_ORIGIN: http://localhost:5173
+    ports:
+      - '4000:4000'
+
+  frontend:
+    build:
+      context: ../../Frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:4000/v1
+    ports:
+      - '5173:80'
+    depends_on:
+      - backend

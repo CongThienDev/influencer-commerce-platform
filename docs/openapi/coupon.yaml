@@ -1,0 +1,316 @@
+openapi: 3.0.3
+info:
+  title: Influencer Platform Coupon API
+  version: 1.0.0
+  description: Public/external integration APIs for coupon validation, order attribution, and slug resolve.
+servers:
+  - url: /v1
+tags:
+  - name: Coupon
+  - name: Order
+  - name: Influencer
+paths:
+  /coupon/validate:
+    post:
+      tags: [Coupon]
+      summary: Validate coupon and calculate discount
+      operationId: validateCoupon
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateCouponRequest'
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateCouponResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /order/create:
+    post:
+      tags: [Order]
+      summary: Create order with optional coupon attribution
+      description: |
+        Creates an order using backend-side discount calculation.
+        Supports idempotency via `Idempotency-Key` header.
+      operationId: createOrder
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+          description: Unique key for safe retries from external checkout frontend.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '200':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrderResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /coupon/slug/{slug}:
+    get:
+      tags: [Coupon]
+      summary: Resolve influencer slug to coupon
+      operationId: resolveCouponSlug
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema:
+            type: string
+          example: anna
+      responses:
+        '200':
+          description: Slug found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolveSlugResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /influencer/{id}/stats:
+    get:
+      tags: [Influencer]
+      summary: Get influencer performance stats
+      operationId: getInfluencerStats
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfluencerStatsResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  schemas:
+    ValidateCouponRequest:
+      type: object
+      required: [code, cart_total]
+      properties:
+        code:
+          type: string
+          example: anna10
+        cart_total:
+          type: number
+          format: double
+          minimum: 0
+          example: 100000
+
+    ValidateCouponResponse:
+      oneOf:
+        - $ref: '#/components/schemas/ValidateCouponSuccess'
+        - $ref: '#/components/schemas/ValidateCouponFailed'
+
+    ValidateCouponSuccess:
+      type: object
+      required: [valid, discount, final_total, influencer_id]
+      properties:
+        valid:
+          type: boolean
+          enum: [true]
+        discount:
+          type: number
+          format: double
+          minimum: 0
+          example: 10000
+        final_total:
+          type: number
+          format: double
+          minimum: 0
+          example: 90000
+        influencer_id:
+          type: string
+          format: uuid
+          example: 8e7c76a0-c8c3-4cdf-a25b-8f9247e4d1a2
+        coupon_code:
+          type: string
+          example: ANNA10
+
+    ValidateCouponFailed:
+      type: object
+      required: [valid, discount, final_total, reason_code]
+      properties:
+        valid:
+          type: boolean
+          enum: [false]
+        discount:
+          type: number
+          format: double
+          minimum: 0
+          example: 0
+        final_total:
+          type: number
+          format: double
+          minimum: 0
+          example: 100000
+        reason_code:
+          type: string
+          enum: [INVALID, INACTIVE, EXPIRED, LIMIT_REACHED]
+          example: EXPIRED
+        message:
+          type: string
+          example: Coupon has expired
+
+    CreateOrderRequest:
+      type: object
+      required: [cart_total]
+      properties:
+        cart_total:
+          type: number
+          format: double
+          minimum: 0
+          example: 100000
+        coupon_code:
+          type: string
+          example: ANNA10
+
+    CreateOrderResponse:
+      type: object
+      required: [order_id, discount, final_total]
+      properties:
+        order_id:
+          type: string
+          format: uuid
+        discount:
+          type: number
+          format: double
+          minimum: 0
+          example: 10000
+        final_total:
+          type: number
+          format: double
+          minimum: 0
+          example: 90000
+        influencer_id:
+          type: string
+          format: uuid
+          nullable: true
+        coupon_code:
+          type: string
+          nullable: true
+          example: ANNA10
+
+    ResolveSlugResponse:
+      type: object
+      required: [slug, coupon_code, influencer_id]
+      properties:
+        slug:
+          type: string
+          example: anna
+        coupon_code:
+          type: string
+          example: ANNA10
+        influencer_id:
+          type: string
+          format: uuid
+        landing_url:
+          type: string
+          nullable: true
+          example: https://shop.example.com/?coupon=ANNA10
+
+    InfluencerStatsResponse:
+      type: object
+      required: [total_orders, total_revenue, total_commission]
+      properties:
+        total_orders:
+          type: integer
+          minimum: 0
+          example: 120
+        total_revenue:
+          type: number
+          format: double
+          minimum: 0
+          example: 56000000
+        total_commission:
+          type: number
+          format: double
+          minimum: 0
+          example: 8400000
+
+    ErrorResponse:
+      type: object
+      required: [error, message, statusCode]
+      properties:
+        error:
+          type: string
+          example: BAD_REQUEST
+        message:
+          type: string
+          example: cart_total must be greater than or equal to 0
+        statusCode:
+          type: integer
+          example: 400
+
+  responses:
+    BadRequest:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            slugNotFound:
+              value:
+                error: NOT_FOUND
+                message: Slug not found
+                statusCode: 404
+    Conflict:
+      description: Conflict (idempotency/order state)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            duplicatedOrder:
+              value:
+                error: CONFLICT
+                message: Duplicate order request
+                statusCode: 409
+    TooManyRequests:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            limited:
+              value:
+                error: TOO_MANY_REQUESTS
+                message: Too many requests
+                statusCode: 429
+

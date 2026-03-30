@@ -1,0 +1,239 @@
+openapi: 3.0.3
+info:
+  title: Influencer Platform Auth API
+  version: 1.0.0
+  description: Auth contract for admin dashboard using JWT + HttpOnly cookies.
+servers:
+  - url: /v1
+tags:
+  - name: Auth
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login admin account
+      description: |
+        Validates admin credentials, issues access and refresh tokens via HttpOnly cookies,
+        and returns basic user profile.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Set-Cookie:
+              description: Access and refresh cookies are set by server.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      description: |
+        Uses refresh token from HttpOnly cookie, rotates refresh token, and returns
+        a new access token cookie.
+      operationId: refreshToken
+      responses:
+        '200':
+          description: Refresh successful
+          headers:
+            Set-Cookie:
+              description: New access cookie and rotated refresh cookie are set.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout current session
+      description: Revokes refresh token session and clears auth cookies.
+      operationId: logout
+      responses:
+        '200':
+          description: Logout successful
+          headers:
+            Set-Cookie:
+              description: Auth cookies are cleared.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current authenticated user
+      description: Requires valid access token from HttpOnly cookie.
+      operationId: getMe
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@company.com
+        password:
+          type: string
+          minLength: 8
+          example: strongPassword123
+
+    AuthUser:
+      type: object
+      required: [id, email, role]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 8e7c76a0-c8c3-4cdf-a25b-8f9247e4d1a2
+        email:
+          type: string
+          format: email
+          example: admin@company.com
+        role:
+          type: string
+          enum: [admin]
+        name:
+          type: string
+          example: Ops Admin
+
+    LoginResponse:
+      type: object
+      required: [success, user]
+      properties:
+        success:
+          type: boolean
+          example: true
+        user:
+          $ref: '#/components/schemas/AuthUser'
+
+    RefreshResponse:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          example: true
+
+    LogoutResponse:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          example: true
+
+    MeResponse:
+      type: object
+      required: [authenticated, user]
+      properties:
+        authenticated:
+          type: boolean
+          example: true
+        user:
+          $ref: '#/components/schemas/AuthUser'
+
+    ErrorResponse:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          example: UNAUTHORIZED
+        message:
+          type: string
+          example: Invalid credentials
+        statusCode:
+          type: integer
+          example: 401
+
+  responses:
+    BadRequest:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            validation:
+              value:
+                error: BAD_REQUEST
+                message: email is required
+                statusCode: 400
+    Unauthorized:
+      description: Authentication required or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            unauthorized:
+              value:
+                error: UNAUTHORIZED
+                message: Invalid credentials or session
+                statusCode: 401
+    Forbidden:
+      description: Session blocked or refresh token revoked
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            forbidden:
+              value:
+                error: FORBIDDEN
+                message: Refresh token revoked
+                statusCode: 403
+    TooManyRequests:
+      description: Too many login attempts
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            limited:
+              value:
+                error: TOO_MANY_REQUESTS
+                message: Too many login attempts, try again later
+                statusCode: 429
+

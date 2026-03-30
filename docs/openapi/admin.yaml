@@ -1,0 +1,698 @@
+openapi: 3.0.3
+info:
+  title: Influencer Platform Admin API
+  version: 1.0.0
+  description: Admin APIs for dashboard operations (requires admin auth via cookie JWT).
+servers:
+  - url: /v1
+tags:
+  - name: Admin Dashboard
+  - name: Admin Influencers
+  - name: Admin Coupons
+  - name: Admin Orders
+  - name: Admin Commissions
+security:
+  - cookieAuth: []
+paths:
+  /admin/dashboard/summary:
+    get:
+      tags: [Admin Dashboard]
+      summary: Get dashboard summary metrics
+      operationId: getAdminDashboardSummary
+      responses:
+        '200':
+          description: Summary metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummaryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/influencers:
+    get:
+      tags: [Admin Influencers]
+      summary: List influencers
+      operationId: listInfluencers
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Search'
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: Influencer list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListInfluencersResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Admin Influencers]
+      summary: Create influencer
+      operationId: createInfluencer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInfluencerRequest'
+      responses:
+        '201':
+          description: Influencer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfluencerDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /admin/influencers/{id}:
+    patch:
+      tags: [Admin Influencers]
+      summary: Update influencer
+      operationId: updateInfluencer
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInfluencerRequest'
+      responses:
+        '200':
+          description: Updated influencer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfluencerDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/coupons:
+    get:
+      tags: [Admin Coupons]
+      summary: List coupons
+      operationId: listCoupons
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Search'
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: Coupon list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCouponsResponse'
+    post:
+      tags: [Admin Coupons]
+      summary: Create coupon
+      operationId: createCoupon
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCouponRequest'
+      responses:
+        '201':
+          description: Coupon created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CouponDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /admin/coupons/{id}:
+    patch:
+      tags: [Admin Coupons]
+      summary: Update coupon
+      operationId: updateCoupon
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCouponRequest'
+      responses:
+        '200':
+          description: Coupon updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CouponDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /admin/orders:
+    get:
+      tags: [Admin Orders]
+      summary: List orders
+      operationId: listOrders
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - in: query
+          name: coupon_code
+          schema:
+            type: string
+        - in: query
+          name: influencer_id
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Order list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrdersResponse'
+
+  /admin/commissions:
+    get:
+      tags: [Admin Commissions]
+      summary: List commissions
+      operationId: listCommissions
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, paid]
+        - in: query
+          name: influencer_id
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Commission list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCommissionsResponse'
+
+  /admin/commissions/{id}/pay:
+    patch:
+      tags: [Admin Commissions]
+      summary: Mark commission as paid
+      operationId: markCommissionPaid
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarkPaidRequest'
+      responses:
+        '200':
+          description: Commission updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommissionDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /admin/commissions/export.csv:
+    get:
+      tags: [Admin Commissions]
+      summary: Export commissions CSV
+      operationId: exportCommissionsCsv
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, paid]
+      responses:
+        '200':
+          description: CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+
+  parameters:
+    IdPath:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    Limit:
+      in: query
+      name: limit
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    Search:
+      in: query
+      name: search
+      schema:
+        type: string
+
+  schemas:
+    PaginationMeta:
+      type: object
+      required: [page, limit, total]
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 135
+
+    InfluencerDto:
+      type: object
+      required: [id, name, email, status, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        handle:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+        total_codes:
+          type: integer
+          example: 3
+        total_revenue:
+          type: number
+          format: double
+          example: 12000000
+        created_at:
+          type: string
+          format: date-time
+
+    CouponDto:
+      type: object
+      required: [id, code, influencer_id, discount_type, discount_value, used_count, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+          example: ANNA10
+        influencer_id:
+          type: string
+          format: uuid
+        influencer_name:
+          type: string
+          nullable: true
+        discount_type:
+          type: string
+          enum: [percent, fixed]
+        discount_value:
+          type: number
+          format: double
+        usage_limit:
+          type: integer
+          nullable: true
+        used_count:
+          type: integer
+          minimum: 0
+        valid_from:
+          type: string
+          format: date-time
+          nullable: true
+        valid_to:
+          type: string
+          format: date-time
+          nullable: true
+        slug:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+
+    OrderDto:
+      type: object
+      required: [id, total_amount, discount_amount, final_amount, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        total_amount:
+          type: number
+          format: double
+        discount_amount:
+          type: number
+          format: double
+        final_amount:
+          type: number
+          format: double
+        coupon_code:
+          type: string
+          nullable: true
+        influencer_id:
+          type: string
+          format: uuid
+          nullable: true
+        influencer_name:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    CommissionDto:
+      type: object
+      required: [id, order_id, influencer_id, commission_rate, commission_amount, status, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        order_id:
+          type: string
+          format: uuid
+        influencer_id:
+          type: string
+          format: uuid
+        influencer_name:
+          type: string
+          nullable: true
+        commission_rate:
+          type: number
+          format: double
+          example: 0.1
+        commission_amount:
+          type: number
+          format: double
+        status:
+          type: string
+          enum: [pending, paid]
+        paid_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    DashboardSummaryResponse:
+      type: object
+      required: [total_revenue, total_orders, total_commission, top_influencers]
+      properties:
+        total_revenue:
+          type: number
+          format: double
+        total_orders:
+          type: integer
+        total_commission:
+          type: number
+          format: double
+        top_influencers:
+          type: array
+          maxItems: 5
+          items:
+            type: object
+            required: [influencer_id, name, orders, revenue, commission]
+            properties:
+              influencer_id:
+                type: string
+                format: uuid
+              name:
+                type: string
+              orders:
+                type: integer
+              revenue:
+                type: number
+                format: double
+              commission:
+                type: number
+                format: double
+
+    ListInfluencersResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InfluencerDto'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    ListCouponsResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CouponDto'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    ListOrdersResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderDto'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    ListCommissionsResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommissionDto'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    CreateInfluencerRequest:
+      type: object
+      required: [name, email]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        handle:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+          default: active
+
+    UpdateInfluencerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        handle:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+
+    CreateCouponRequest:
+      type: object
+      required: [code, influencer_id, discount_type, discount_value]
+      properties:
+        code:
+          type: string
+          example: ANNA10
+        influencer_id:
+          type: string
+          format: uuid
+        discount_type:
+          type: string
+          enum: [percent, fixed]
+        discount_value:
+          type: number
+          format: double
+          minimum: 0
+        usage_limit:
+          type: integer
+          nullable: true
+          minimum: 1
+        valid_from:
+          type: string
+          format: date-time
+          nullable: true
+        valid_to:
+          type: string
+          format: date-time
+          nullable: true
+        slug:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+          default: active
+
+    UpdateCouponRequest:
+      type: object
+      properties:
+        influencer_id:
+          type: string
+          format: uuid
+        discount_type:
+          type: string
+          enum: [percent, fixed]
+        discount_value:
+          type: number
+          format: double
+          minimum: 0
+        usage_limit:
+          type: integer
+          nullable: true
+          minimum: 1
+        valid_from:
+          type: string
+          format: date-time
+          nullable: true
+        valid_to:
+          type: string
+          format: date-time
+          nullable: true
+        slug:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+
+    MarkPaidRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          example: Paid via bank transfer
+
+    ErrorResponse:
+      type: object
+      required: [error, message, statusCode]
+      properties:
+        error:
+          type: string
+          example: UNAUTHORIZED
+        message:
+          type: string
+          example: Authentication required
+        statusCode:
+          type: integer
+          example: 401
+
+  responses:
+    BadRequest:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Missing or invalid access token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Insufficient role/permission
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Entity not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Business conflict (duplicate/invalid state)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
