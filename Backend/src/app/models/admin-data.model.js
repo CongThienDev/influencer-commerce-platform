@@ -38,15 +38,6 @@ function toMoney(value) {
   return Math.round(numericValue);
 }
 
-function toPositiveInteger(value, fallback = 0) {
-  const numericValue = Number(value);
-  if (!Number.isFinite(numericValue)) {
-    return fallback;
-  }
-
-  return Math.max(0, Math.trunc(numericValue));
-}
-
 function parseDate(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -79,10 +70,6 @@ function containsText(haystack, needle) {
   }
 
   return normalizeLowerText(haystack).includes(needle);
-}
-
-function roundMoney(value) {
-  return Math.round(Number(value) || 0);
 }
 
 export class AdminDataModel {
