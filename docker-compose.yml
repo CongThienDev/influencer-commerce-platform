@@ -1,4 +1,13 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-influencer_platform}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   backend:
     build:
       context: ./Backend
@@ -14,8 +23,15 @@ services:
       CSRF_TOKEN_MAX_AGE_MS: ${CSRF_TOKEN_MAX_AGE_MS:-2592000000}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123456}
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/influencer_platform}
+      DB_SSL: ${DB_SSL:-false}
+      DB_SEED_ON_BOOT: ${DB_SEED_ON_BOOT:-false}
+      PUBLIC_RATE_LIMIT_MAX: ${PUBLIC_RATE_LIMIT_MAX:-120}
+      PUBLIC_RATE_LIMIT_WINDOW_MS: ${PUBLIC_RATE_LIMIT_WINDOW_MS:-60000}
     ports:
       - "4000:4000"
+    depends_on:
+      - postgres
 
   frontend:
     build:
@@ -26,3 +42,6 @@ services:
       - "5173:80"
     depends_on:
       - backend
+
+volumes:
+  postgres_data:

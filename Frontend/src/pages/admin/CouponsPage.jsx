@@ -42,6 +42,7 @@ export default function CouponsPage() {
   const [form] = Form.useForm()
   const [modalOpen, setModalOpen] = useState(false)
   const [editingRecord, setEditingRecord] = useState(null)
+  const [saving, setSaving] = useState(false)
   const [influencers, setInfluencers] = useState([])
   const [influencerLoading, setInfluencerLoading] = useState(false)
 
@@ -119,6 +120,10 @@ export default function CouponsPage() {
   }
 
   const saveCoupon = async () => {
+    if (saving) {
+      return
+    }
+
     const values = await form.validateFields()
 
     const payload = {
@@ -133,6 +138,7 @@ export default function CouponsPage() {
     }
 
     try {
+      setSaving(true)
       if (editingRecord) {
         await updateCoupon(editingRecord.id, payload)
         message.success('Coupon updated successfully.')
@@ -148,6 +154,8 @@ export default function CouponsPage() {
       refresh()
     } catch (saveError) {
       message.error(saveError.message || 'Failed to save coupon.')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -310,9 +318,19 @@ export default function CouponsPage() {
       <Modal
         title={editingRecord ? 'Edit coupon' : 'Create coupon'}
         open={modalOpen}
-        onCancel={() => setModalOpen(false)}
+        onCancel={() => {
+          if (!saving) {
+            setModalOpen(false)
+          }
+        }}
         onOk={saveCoupon}
         okText={editingRecord ? 'Save changes' : 'Create'}
+        confirmLoading={saving}
+        okButtonProps={{ disabled: saving }}
+        cancelButtonProps={{ disabled: saving }}
+        closable={!saving}
+        keyboard={!saving}
+        maskClosable={!saving}
         width={720}
         destroyOnClose
       >

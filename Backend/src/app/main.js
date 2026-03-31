@@ -3,10 +3,12 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { createApiRouter } from './api/index.js';
 import { buildDependencies } from './dependencies.js';
+import { createRequestLogger } from './core/logger.js';
+import { sendError } from './core/response.js';
 
-export function createApp() {
+export async function createApp() {
   const app = express();
-  const deps = buildDependencies();
+  const deps = await buildDependencies();
 
   app.use(
     cors({
@@ -14,6 +16,7 @@ export function createApp() {
       credentials: true
     })
   );
+  app.use(createRequestLogger());
   app.use(express.json());
   app.use(cookieParser());
   app.use(deps.requireCsrf);
@@ -28,6 +31,8 @@ export function createApp() {
       publicController: deps.publicController
     })
   );
+
+  app.use((error, _req, res) => sendError(res, error));
 
   return app;
 }

@@ -4,9 +4,9 @@ import { AdminService } from '../src/app/services/admin.service.js';
 
 const adminUser = { id: 'admin-id', role: 'admin' };
 
-test('returns dashboard summary in expected shape', () => {
+test('returns dashboard summary in expected shape', async () => {
   const service = new AdminService();
-  const summary = service.getDashboardSummary(adminUser);
+  const summary = await service.getDashboardSummary(adminUser);
 
   assert.equal(typeof summary.total_revenue, 'number');
   assert.equal(typeof summary.total_orders, 'number');
@@ -14,10 +14,10 @@ test('returns dashboard summary in expected shape', () => {
   assert.ok(Array.isArray(summary.top_influencers));
 });
 
-test('creates influencer and coupon with valid payloads', () => {
+test('creates influencer and coupon with valid payloads', async () => {
   const service = new AdminService();
 
-  const influencer = service.createInfluencer(adminUser, {
+  const influencer = await service.createInfluencer(adminUser, {
     name: 'Test Creator',
     email: 'test.creator@example.com',
     handle: 'testcreator',
@@ -28,7 +28,7 @@ test('creates influencer and coupon with valid payloads', () => {
   assert.equal(influencer.status, 'active');
   assert.ok(influencer.id);
 
-  const coupon = service.createCoupon(adminUser, {
+  const coupon = await service.createCoupon(adminUser, {
     code: 'TEST20',
     influencer_id: influencer.id,
     discount_type: 'percent',
@@ -42,14 +42,20 @@ test('creates influencer and coupon with valid payloads', () => {
   assert.equal(coupon.discount_type, 'percent');
 });
 
-test('marks a pending commission as paid', () => {
+test('marks a pending commission as paid', async () => {
   const service = new AdminService();
-  const commissions = service.listCommissions(adminUser, { status: 'pending', page: 1, limit: 10 });
+  const commissions = await service.listCommissions(adminUser, {
+    status: 'pending',
+    page: 1,
+    limit: 10
+  });
 
   assert.ok(commissions.data.length > 0, 'expected at least one pending commission in seed data');
 
   const pending = commissions.data[0];
-  const updated = service.markCommissionPaid(adminUser, pending.id, { note: 'test payout' });
+  const updated = await service.markCommissionPaid(adminUser, pending.id, {
+    note: 'test payout'
+  });
 
   assert.equal(updated.id, pending.id);
   assert.equal(updated.status, 'paid');

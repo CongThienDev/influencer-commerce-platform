@@ -1,8 +1,9 @@
 import { sendError } from '../core/response.js';
 
 export class PublicController {
-  constructor({ publicService }) {
+  constructor({ publicService, publicRateLimiter }) {
     this.publicService = publicService;
+    this.publicRateLimiter = publicRateLimiter;
   }
 
   respondJson = async (req, res, methodName, statusCode = 200, ...args) => {

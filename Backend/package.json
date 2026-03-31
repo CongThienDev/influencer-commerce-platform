@@ -7,8 +7,10 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "lint": "eslint .",
-    "test": "node --test tests",
-    "test:coverage": "node --test --experimental-test-coverage tests",
+    "test": "node --test tests/*.mjs",
+    "test:coverage": "node --test --experimental-test-coverage tests/*.mjs",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "db:seed": "node scripts/db-seed.mjs",
     "smoke:admin": "node scripts/smoke-admin-flow.mjs"
   },
   "dependencies": {
@@ -16,7 +18,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
