@@ -13,10 +13,10 @@ function createService(seed = {}) {
   return new PublicService({ dataModel, env, clock: fixedClock });
 }
 
-test('validates coupons case-insensitively and clamps discount math', () => {
+test('validates coupons case-insensitively and clamps discount math', async () => {
   const service = createService();
 
-  const success = service.validateCoupon({
+  const success = await service.validateCoupon({
     code: 'anna10',
     cart_total: 100000
   });
@@ -27,7 +27,7 @@ test('validates coupons case-insensitively and clamps discount math', () => {
   assert.equal(success.coupon_code, 'ANNA10');
   assert.equal(success.influencer_id, '00000000-0000-4000-8000-000000000001');
 
-  const clamped = service.validateCoupon({
+  const clamped = await service.validateCoupon({
     code: 'anna50k',
     cart_total: 1000
   });
@@ -37,7 +37,7 @@ test('validates coupons case-insensitively and clamps discount math', () => {
   assert.equal(clamped.final_total, 0);
 });
 
-test('returns standardized coupon validation failures', () => {
+test('returns standardized coupon validation failures', async () => {
   const service = createService();
   const now = '2026-03-30T12:00:00.000Z';
 
@@ -75,7 +75,7 @@ test('returns standardized coupon validation failures', () => {
   );
 
   assert.deepEqual(
-    service.validateCoupon({ code: 'missing', cart_total: 1000 }),
+    await service.validateCoupon({ code: 'missing', cart_total: 1000 }),
     {
       valid: false,
       discount_amount: 0,
@@ -85,24 +85,24 @@ test('returns standardized coupon validation failures', () => {
     }
   );
 
-  assert.equal(service.validateCoupon({ code: 'chi20', cart_total: 1000 }).reason_code, 'INACTIVE');
+  assert.equal((await service.validateCoupon({ code: 'chi20', cart_total: 1000 })).reason_code, 'INACTIVE');
   assert.equal(
-    service.validateCoupon({ code: 'expired1', cart_total: 1000 }).reason_code,
+    (await service.validateCoupon({ code: 'expired1', cart_total: 1000 })).reason_code,
     'EXPIRED'
   );
   assert.equal(
-    service.validateCoupon({ code: 'limit1', cart_total: 1000 }).reason_code,
+    (await service.validateCoupon({ code: 'limit1', cart_total: 1000 })).reason_code,
     'LIMIT_REACHED'
   );
 });
 
-test('creates attributed orders and replays idempotent requests', () => {
+test('creates attributed orders and replays idempotent requests', async () => {
   const service = createService();
   const beforeOrders = service.dataModel.state.orders.length;
   const beforeCommissions = service.dataModel.state.commissions.length;
   const beforeUsedCount = service.dataModel.findCouponByCode('ANNA10').used_count;
 
-  const first = service.createOrder(
+  const first = await service.createOrder(
     {
       cart_total: 100000,
       coupon_code: 'anna10'
@@ -118,7 +118,7 @@ test('creates attributed orders and replays idempotent requests', () => {
   assert.equal(service.dataModel.state.commissions.length, beforeCommissions + 1);
   assert.equal(service.dataModel.findCouponByCode('ANNA10').used_count, beforeUsedCount + 1);
 
-  const second = service.createOrder(
+  const second = await service.createOrder(
     {
       cart_total: 100000,
       coupon_code: 'ANNA10'
@@ -130,7 +130,7 @@ test('creates attributed orders and replays idempotent requests', () => {
   assert.equal(service.dataModel.state.orders.length, beforeOrders + 1);
   assert.equal(service.dataModel.state.commissions.length, beforeCommissions + 1);
 
-  assert.throws(
+  await assert.rejects(
     () =>
       service.createOrder(
         {
@@ -143,16 +143,16 @@ test('creates attributed orders and replays idempotent requests', () => {
   );
 });
 
-test('resolves slugs and returns influencer stats', () => {
+test('resolves slugs and returns influencer stats', async () => {
   const service = createService();
 
-  const slug = service.resolveCouponSlug('Anna');
+  const slug = await service.resolveCouponSlug('Anna');
   assert.equal(slug.slug, 'anna');
   assert.equal(slug.coupon_code, 'ANNA10');
   assert.equal(slug.influencer_id, '00000000-0000-4000-8000-000000000001');
   assert.equal(slug.landing_url, 'http://localhost:5173/?coupon=ANNA10');
 
-  assert.deepEqual(service.getInfluencerStats('00000000-0000-4000-8000-000000000001'), {
+  assert.deepEqual(await service.getInfluencerStats('00000000-0000-4000-8000-000000000001'), {
     total_orders: 2,
     total_revenue: 650000,
     total_commission: 65000

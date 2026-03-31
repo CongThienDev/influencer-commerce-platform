@@ -1,4 +1,5 @@
 import { createAppError } from '../core/errors.js';
+import { logError, logInfo } from '../core/logger.js';
 import {
   validateCouponValidatePayload,
   validateCreateOrderPayload,
@@ -44,15 +45,23 @@ export class PublicService {
     this.idempotencyCache = new Map();
   }
 
-  validateCoupon(payload = {}) {
+  async validateCoupon(payload = {}) {
     const input = validateCouponValidatePayload(payload);
-    const coupon = this.dataModel.findCouponByCode(input.code);
+    const coupon = await this.dataModel.findCouponByCode(input.code);
     const current = nowDate(this.clock);
+    const result = this.evaluateCoupon(coupon, input.cart_total, current);
 
-    return this.evaluateCoupon(coupon, input.cart_total, current);
+    logInfo('coupon.validate', {
+      code: normalizeCode(input.code),
+      cart_total: input.cart_total,
+      valid: result.valid,
+      reason_code: result.reason_code || null
+    });
+
+    return result;
   }
 
-  createOrder(payload = {}, idempotencyKey) {
+  async createOrder(payload = {}, idempotencyKey) {
     const input = validateCreateOrderPayload(payload);
     const normalizedIdempotencyKey = normalizeIdempotencyKey(idempotencyKey);
     const fingerprint = JSON.stringify({
@@ -73,20 +82,31 @@ export class PublicService {
 
     const current = nowDate(this.clock);
     const coupon = input.coupon_code
-      ? this.dataModel.findCouponByCode(input.coupon_code)
+      ? await this.dataModel.findCouponByCode(input.coupon_code)
       : null;
     const validation = this.evaluateCoupon(coupon, input.cart_total, current);
     const appliedCoupon = validation.valid ? coupon : null;
     const discount = validation.valid ? validation.discount_amount : 0;
     const finalTotal = validation.valid ? validation.final_total : input.cart_total;
 
-    const { order } = this.dataModel.createPublicOrder({
-      total_amount: input.cart_total,
-      discount_amount: discount,
-      final_amount: finalTotal,
-      coupon: appliedCoupon,
-      commission_rate: 0.1
-    });
+    let created;
+    try {
+      created = await this.dataModel.createPublicOrder({
+        total_amount: input.cart_total,
+        discount_amount: discount,
+        final_amount: finalTotal,
+        coupon: appliedCoupon,
+        commission_rate: 0.1
+      });
+    } catch (error) {
+      logError('order.create.failed', {
+        coupon_code: input.coupon_code ? normalizeCode(input.coupon_code) : null,
+        cart_total: input.cart_total,
+        message: error?.message
+      });
+      throw error;
+    }
+    const { order } = created;
 
     const response = {
       order_id: order.id,
@@ -103,12 +123,21 @@ export class PublicService {
       });
     }
 
+    logInfo('order.create', {
+      order_id: response.order_id,
+      coupon_code: response.coupon_code,
+      influencer_id: response.influencer_id,
+      discount_amount: response.discount_amount,
+      final_total: response.final_total,
+      idempotency_key: normalizedIdempotencyKey || null
+    });
+
     return response;
   }
 
-  resolveCouponSlug(slug) {
+  async resolveCouponSlug(slug) {
     const normalizedSlug = validateSlugParam(slug).toLowerCase();
-    const coupon = this.dataModel.findCouponBySlug(normalizedSlug);
+    const coupon = await this.dataModel.findCouponBySlug(normalizedSlug);
 
     if (!coupon) {
       throw createAppError(404, 'NOT_FOUND', 'Slug not found');
@@ -122,7 +151,7 @@ export class PublicService {
     };
   }
 
-  getInfluencerStats(id) {
+  async getInfluencerStats(id) {
     const influencerId = validateInfluencerIdParam(id);
     return this.dataModel.getInfluencerStats(influencerId);
   }

@@ -78,69 +78,69 @@ export class AdminService {
     this.dataModel = dataModel || new AdminDataModel();
   }
 
-  getDashboardSummary(user) {
+  async getDashboardSummary(user) {
     assertAdminUser(user);
     return this.dataModel.getDashboardSummary();
   }
 
-  listInfluencers(user, query = {}) {
+  async listInfluencers(user, query = {}) {
     assertAdminUser(user);
     const filters = parseListQuery(query, { defaultLimit: 10 });
     return this.dataModel.listInfluencers(filters);
   }
 
-  createInfluencer(user, payload = {}) {
+  async createInfluencer(user, payload = {}) {
     assertAdminUser(user);
     const input = validateInfluencerCreatePayload(payload);
     return this.dataModel.createInfluencer(input);
   }
 
-  updateInfluencer(user, id, payload = {}) {
+  async updateInfluencer(user, id, payload = {}) {
     assertAdminUser(user);
     const input = validateInfluencerUpdatePayload(payload);
     return this.dataModel.updateInfluencer(id, input);
   }
 
-  listCoupons(user, query = {}) {
+  async listCoupons(user, query = {}) {
     assertAdminUser(user);
     const filters = parseListQuery(query, { defaultLimit: 10 });
     return this.dataModel.listCoupons(filters);
   }
 
-  createCoupon(user, payload = {}) {
+  async createCoupon(user, payload = {}) {
     assertAdminUser(user);
     const input = validateCouponCreatePayload(payload);
     return this.dataModel.createCoupon(input);
   }
 
-  updateCoupon(user, id, payload = {}) {
+  async updateCoupon(user, id, payload = {}) {
     assertAdminUser(user);
     const input = validateCouponUpdatePayload(payload);
     return this.dataModel.updateCoupon(id, input);
   }
 
-  listOrders(user, query = {}) {
+  async listOrders(user, query = {}) {
     assertAdminUser(user);
     const filters = parseListQuery(query, { defaultLimit: 10 });
     return this.dataModel.listOrders(filters);
   }
 
-  listCommissions(user, query = {}) {
+  async listCommissions(user, query = {}) {
     assertAdminUser(user);
     const filters = parseListQuery(query, { defaultLimit: 10 });
     return this.dataModel.listCommissions(filters);
   }
 
-  markCommissionPaid(user, id, payload = {}) {
+  async markCommissionPaid(user, id, payload = {}) {
     assertAdminUser(user);
     const input = validateCommissionPaidPayload(payload);
     return this.dataModel.markCommissionPaid(id, input);
   }
 
-  exportCommissionsCsv(user, query = {}) {
+  async exportCommissionsCsv(user, query = {}) {
     assertAdminUser(user);
     const filters = parseListQuery(query, { defaultLimit: 100 });
-    const { data } = this.dataModel.listCommissions({
+    const { data } = await this.dataModel.listCommissions({
       ...filters,
       page: 1,
       limit: Number.MAX_SAFE_INTEGER
