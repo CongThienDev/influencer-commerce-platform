@@ -30,6 +30,7 @@ export default function InfluencersPage() {
   const [form] = Form.useForm()
   const [modalOpen, setModalOpen] = useState(false)
   const [editingRecord, setEditingRecord] = useState(null)
+  const [saving, setSaving] = useState(false)
 
   const { data, meta, loading, error, query, setQuery, refresh } =
     usePaginatedResource(listInfluencers, { page: 1, limit: PAGE_SIZE })
@@ -70,6 +71,10 @@ export default function InfluencersPage() {
   }
 
   const saveInfluencer = async () => {
+    if (saving) {
+      return
+    }
+
     const values = await form.validateFields()
     const payload = {
       name: values.name,
@@ -79,6 +84,7 @@ export default function InfluencersPage() {
     }
 
     try {
+      setSaving(true)
       if (editingRecord) {
         await updateInfluencer(editingRecord.id, payload)
         message.success('Influencer updated successfully.')
@@ -91,6 +97,8 @@ export default function InfluencersPage() {
       refresh()
     } catch (saveError) {
       message.error(saveError.message || 'Failed to save influencer.')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -112,7 +120,7 @@ export default function InfluencersPage() {
       render: (value, record) => (
         <Space direction="vertical" size={0}>
           <Typography.Text strong>{value}</Typography.Text>
-          <Typography.Text type="secondary">{record.handle || 'No handle'}</Typography.Text>
+          <Typography.Text type="secondary">{record.handle || 'No username'}</Typography.Text>
         </Space>
       ),
     },
@@ -245,9 +253,19 @@ export default function InfluencersPage() {
       <Modal
         title={editingRecord ? 'Edit influencer' : 'Create influencer'}
         open={modalOpen}
-        onCancel={() => setModalOpen(false)}
+        onCancel={() => {
+          if (!saving) {
+            setModalOpen(false)
+          }
+        }}
         onOk={saveInfluencer}
         okText={editingRecord ? 'Save changes' : 'Create'}
+        confirmLoading={saving}
+        okButtonProps={{ disabled: saving }}
+        cancelButtonProps={{ disabled: saving }}
+        closable={!saving}
+        keyboard={!saving}
+        maskClosable={!saving}
         destroyOnClose
       >
         <Form layout="vertical" form={form}>
@@ -268,8 +286,8 @@ export default function InfluencersPage() {
           >
             <Input placeholder="anna@example.com" />
           </Form.Item>
-          <Form.Item label="Handle" name="handle">
-            <Input placeholder="@anna" />
+          <Form.Item label="Username" name="handle">
+            <Input placeholder="anna" />
           </Form.Item>
           <Form.Item
             label="Status"
