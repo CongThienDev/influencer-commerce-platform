@@ -26,9 +26,42 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 ## Local run without Docker
 
 ```bash
-cd Backend && cp .env.example .env && npm install && npm run dev
-cd Frontend && npm install && npm run dev
+cp .env.example .env
+cd Backend && cp .env.example .env && npm install
+cd ../Frontend && npm install
 ```
+
+## Database (PostgreSQL)
+
+Backend supports PostgreSQL when `DATABASE_URL` is set.
+
+```bash
+cd Backend
+npm run db:migrate
+npm run db:seed
+```
+
+## Run Backend (local)
+
+Use terminal 1:
+
+```bash
+cd Backend
+npm run dev
+```
+
+Backend runs at `http://localhost:4000`.
+
+## Run Frontend (local)
+
+Use terminal 2:
+
+```bash
+cd Frontend
+npm run dev
+```
+
+Frontend runs at `http://localhost:5173`.
 
 ## API contracts
 
