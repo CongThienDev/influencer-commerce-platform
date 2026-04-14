@@ -68,3 +68,14 @@ Frontend runs at `http://localhost:5173`.
 - `docs/openapi/auth.yaml`
 - `docs/openapi/coupon.yaml`
 - `docs/openapi/admin.yaml`
+
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=CongThienDev%2Finfluencer-commerce-platform&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=CongThienDev/influencer-commerce-platform&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=CongThienDev/influencer-commerce-platform&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=CongThienDev/influencer-commerce-platform&type=date&legend=top-left" />
+ </picture>
+</a>
