@@ -70,6 +70,16 @@ Frontend runs at `http://localhost:5173`.
 - `docs/openapi/admin.yaml`
 
 
+
+## how to run
+docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+
+## see how it work
+Frontend: http://localhost:5173
+Backend: http://localhost:4000
+
+
 ## Star History
 
 <a href="https://www.star-history.com/?repos=CongThienDev%2Finfluencer-commerce-platform&type=date&legend=top-left">
